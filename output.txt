@@ -1,0 +1,9 @@
+[Player 1] Left: -293, Top: 0, Right: 501, Bottom: 864
+
+--- MSS CAPTURE_REGION for Bottom UI ---
+CAPTURE_REGION = {
+    'top': 605,
+    'left': -293,
+    'width': 794,
+    'height': 259
+}
