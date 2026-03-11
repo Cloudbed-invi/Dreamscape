@@ -9,12 +9,12 @@ import glob
 
 # Define the objects list
 objects_list = [
-    "pouch", "steak", "harpoon", "cat", "sea turtle", "hot air balloon", 
-    "window", "fishing net", "potato", "oar", "oxygen tank", "fishing rod", 
-    "z", "whale", "rudder", "seahorse", "signboard", "lighthouse", 
-    "sailboat", "volleyball", "exhaust fan", "pumpkin", "parasol", 
-    "backpack", "lifebuoy", "chimney", "drifting bottle", "jar", 
-    "bench", "flag"
+    "Crow", "Trumpet", "Cake", "Glass Jar", "Chimney", "Sun", "Moon", 
+    "Star", "Scarf", "Suitcase", "Hot-Air-Balloon", "Hole", "Fork", "Key", 
+    "Fountain Pen", "Goggles", "Giftbox", "Fish Bone", "Rose", "Accordion", 
+    "Flour", "Music Note", "Corn", "Car", "Yarn Ball", "Lollipop", 
+    "Bread Slice", "Umbrella", "Satchel", "Diary", "Paw Mark", "Ring", 
+    "Pocket Watch", "Coffee Cup", "Envelope"
 ]
 
 coordinates = {}

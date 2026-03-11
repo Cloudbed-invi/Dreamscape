@@ -1,4 +1,5 @@
 import time
+import random
 import cv2
 import sys
 import numpy as np
@@ -29,42 +30,43 @@ print(f"Loaded CAPTURE_REGION from config: {CAPTURE_REGION}")
 
 # Paste your 30 mapped coordinates here
 master_dict = {
-    'pouch': (736, 620),
-    'steak': (800, 572),
-    'harpoon': (720, 494),
-    'cat': (480, 686),
-    'sea turtle': (184, 650),
-    'hot air balloon': (472, 152),
-    'window': (652, 246),
-    'fishing net': (610, 730),
-    'potato': (248, 842),
-    'oar': (670, 668),
-    'oxygen tank': (380, 718),
-    'fishing rod': (350, 602),
-    'z': (584, 252),
-    'whale': (196, 564),
-    'rudder': (272, 502),
-    'seahorse': (672, 534),
-    'signboard': (670, 398),
-    'lighthouse': (222, 286),
-    'sailboat': (110, 382),
-    'volleyball': (256, 710),
-    'exhaust fan': (780, 262),
-    'pumpkin': (120, 814),
-    'parasol': (444, 476),
-    'backpack': (572, 564),
-    'lifebuoy': (382, 654),
-    'chimney': (124, 456),
-    'drifting bottle': (172, 754),
-    'jar': (800, 684),
-    'bench': (390, 558),
-    'flag': (196, 442),
-    'crane': (530, 388),
-    'submarine': (336, 412),
-    'seagull': (400, 282),
-    'patch': (796, 486),
-    'plane': (144, 170),
+    'Crow': (306, 126),
+    'Trumpet': (432, 394),
+    'Cake': (388, 1222),
+    'Glass Jar': (500, 832),
+    'Chimney': (404, 144),
+    'Sun': (568, 768),
+    'Moon': (704, 874),
+    'Star': (140, 206),
+    'Scarf': (790, 952),
+    'Suitcase': (210, 742),
+    'Hot-Air-Balloon': (614, 402),
+    'Hole': (488, 294),
+    'Fork': (646, 1084),
+    'Key': (144, 1062),
+    'Fountain Pen': (226, 1014),
+    'Goggles': (202, 1258),
+    'Giftbox': (350, 814),
+    'Fish Bone': (608, 1232),
+    'Rose': (714, 448),
+    'Accordion': (784, 1276),
+    'Flour': (406, 750),
+    'Music Note': (390, 944),
+    'Corn': (496, 760),
+    'Car': (236, 900),
+    'Yarn Ball': (816, 1116),
+    'Lollipop': (728, 746),
+    'Bread Slice': (312, 1102),
+    'Umbrella': (296, 750),
+    'Satchel': (710, 1020),
+    'Diary': (96, 1182),
+    'Paw Mark': (112, 968),
+    'Ring': (578, 1146),
+    'Pocket Watch': (382, 1038),
+    'Coffee Cup': (544, 1060),
+    'Envelope': (188, 954),
 }
+
 
 def main():
     print("Initializing ADB Client...")
@@ -159,17 +161,21 @@ def main():
                         # Add to the memory bank FIRST so we don't hit it again next cycle
                         recent_taps[name] = time.time()
                         
+                        # Humanize the exact tap coordinates slightly to avoid bot detection
+                        rand_x = x + random.randint(-8, 8)
+                        rand_y = y + random.randint(-8, 8)
+                        
                         # Non-blocking sequential tap execution
-                        device.shell(f"input tap {x} {y}")
+                        device.shell(f"input tap {rand_x} {rand_y}")
                         detected_names.append(name)
                         
-                        # Add a tiny stagger gap between the taps
-                        time.sleep(0.23)
+                        # Add a random stagger gap between the taps to simulate human speed variations
+                        time.sleep(random.uniform(0.05, 0.25)) #(0.55, 0.85)
                     
                     print(f"[STRIKE] Fired staggered taps: {detected_names}")
                     
-                # Base sleep to let the game drop the next items into the queue
-                time.sleep(0.32)
+                # Base sleep with a human-like random delay before processing the next batch
+                time.sleep(random.uniform(0.15, 0.35)) #(0.65, 0.95)
 
         except KeyboardInterrupt:
             print("\nBot strictly stopped by user.")
