@@ -170,7 +170,7 @@ def main():
                         detected_names.append(name)
                         
                         # Add a random stagger gap between the taps to simulate human speed variations
-                        time.sleep(random.uniform(0.05, 0.25)) #(0.55, 0.85)
+                        time.sleep(random.uniform(0.05, 0.35)) #(0.55, 0.85)
                     
                     print(f"[STRIKE] Fired staggered taps: {detected_names}")
                     
