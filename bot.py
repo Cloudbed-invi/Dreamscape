@@ -7,182 +7,126 @@ import easyocr
 import mss
 from ppadb.client import Client as AdbClient
 from thefuzz import process
-
-# ==========================================
-# CONFIGURATIONS
-# ==========================================
-DRY_RUN = False
-
 import json
 import os
+import ast
+import tkinter as tk
 
-# Try to load the automatically generated region configuration from region_selector.py
-region_config_path = "region.json"
-if not os.path.exists(region_config_path):
-    print(f"CRITICAL ERROR: '{region_config_path}' not found!")
-    print("Please run 'python .\\region_selector.py' first to draw your capture box.")
-    sys.exit(1)
+# --- PRODUCT CONFIGURATION ---
+DRY_RUN = False
+# --- DYNAMIC SETTINGS ---
+def load_settings():
+    defaults = {
+        "adb_ip": "192.168.2.11:5555",
+        "reaction": 0.1, 
+        "cooldown": 0.1, 
+        "jitter": 4, 
+        "randomness": 0.2
+    }
+    if os.path.exists("bot_settings.json"):
+        try:
+            with open("bot_settings.json", "r") as f: return json.load(f)
+        except: pass
+    return defaults
 
-with open(region_config_path, 'r') as f:
-    CAPTURE_REGION = json.load(f)
+settings = load_settings()
+ADB_ADDRESS = settings.get("adb_ip", "192.168.2.11:5555")
+base_react = settings["reaction"]
+base_cool = settings["cooldown"]
+var = settings["randomness"]
+HUMAN_REACTION_RANGE = (max(0, base_react * (1 - var)), base_react * (1 + var))
+SUCCESS_COOLDOWN = (max(0, base_cool * (1 - var)), base_cool * (1 + var))
+HUMAN_CLICK_OFFSET = settings["jitter"]
 
-print(f"Loaded CAPTURE_REGION from config: {CAPTURE_REGION}")
+class StrikeOverlay:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.overrideredirect(True)
+        self.root.attributes("-topmost", True)
+        self.root.attributes("-alpha", 0.7)
+        self.root.geometry("300x35+350+10")
+        self.label = tk.Label(self.root, text="Bot Active", bg="#121212", fg="#00ff00", font=("Arial", 10, "bold"))
+        self.label.pack(fill="both", expand=True)
+        self.root.update()
 
-# Paste your 30 mapped coordinates here
-master_dict = {
-    'Crow': (306, 126),
-    'Trumpet': (432, 394),
-    'Cake': (388, 1222),
-    'Glass Jar': (500, 832),
-    'Chimney': (404, 144),
-    'Sun': (568, 768),
-    'Moon': (704, 874),
-    'Star': (140, 206),
-    'Scarf': (790, 952),
-    'Suitcase': (210, 742),
-    'Hot-Air-Balloon': (614, 402),
-    'Hole': (488, 294),
-    'Fork': (646, 1084),
-    'Key': (144, 1062),
-    'Fountain Pen': (226, 1014),
-    'Goggles': (202, 1258),
-    'Giftbox': (350, 814),
-    'Fish Bone': (608, 1232),
-    'Rose': (714, 448),
-    'Accordion': (784, 1276),
-    'Flour': (406, 750),
-    'Music Note': (390, 944),
-    'Corn': (496, 760),
-    'Car': (236, 900),
-    'Yarn Ball': (816, 1116),
-    'Lollipop': (728, 746),
-    'Bread Slice': (312, 1102),
-    'Umbrella': (296, 750),
-    'Satchel': (710, 1020),
-    'Diary': (96, 1182),
-    'Paw Mark': (112, 968),
-    'Ring': (578, 1146),
-    'Pocket Watch': (382, 1038),
-    'Coffee Cup': (544, 1060),
-    'Envelope': (188, 954),
-}
-
+    def update(self, text):
+        self.label.config(text=text)
+        self.root.update()
 
 def main():
-    print("Initializing ADB Client...")
+    with open("region.json", 'r') as f:
+        config = json.load(f)
+    capture_region = config['ocr_list']
+
+    with open("master_dict.txt", "r") as f:
+        content = f.read().replace("master_dict = ", "").strip()
+        master_dict = ast.literal_eval(content)
+
     client = AdbClient(host="127.0.0.1", port=5037)
+    device = client.device(ADB_ADDRESS)
     
-    try:
-        device = client.device("127.0.0.1:5555")
-    except RuntimeError as e:
-        print(f"Error communicating with ADB server: {e}")
-        sys.exit(1)
-        
-    if not device:
-        print("Exit: Device 127.0.0.1:5555 not found. Please ensure it is connected.")
-        sys.exit(1)
-        
-    print("Device connected successfully!")
-
-    print("Initializing EasyOCR reader. This may take a moment...")
+    # SPEED OPTIMIZATION: Only look for letters and spaces
     reader = easyocr.Reader(['en'], gpu=True)
-    print("EasyOCR initialized.")
-    
-    # Init mss for zero-latency screen capture
     sct = mss.mss()
+    overlay = StrikeOverlay()
+    
+    clicked_recently = {} 
 
-    print(f"Starting High-Speed Main Loop... DRY_RUN is set to {DRY_RUN}")
-    print("Press Ctrl+C to exit.\n")
-    
-    # Keep track of recent taps to avoid double-clicking items before they animate away
-    recent_taps = {}
-    COOLDOWN_TIME = 1.5  # Seconds an item is ignored after being tapped
-    
-    # The High-Speed Main Loop (while True)
-    while True:
-        try:
-            # Clean up expired cooldowns
-            current_time = time.time()
-            recent_taps = {k: v for k, v in recent_taps.items() if current_time - v < COOLDOWN_TIME}
-            
-            # 1. Instant Vision: Grab the CAPTURE_REGION using mss
-            # Ensure the [USER_FILL_IN] values are replaced with actual integers before running
-            sct_img = sct.grab(CAPTURE_REGION)
-            
-            # Convert mss screen grab to NumPy array
-            # sct_img is BGRA, cv2.cvtColor can handle it
+    print(f"--- COMPETITIVE MODE ACTIVE ---")
+    print(f"OCR optimized for speed. Monitoring list...")
+
+    try:
+        while True:
+            # 1. Ultra-Fast Capture
+            sct_img = sct.grab(capture_region)
             img = np.array(sct_img)
-            
-            # Convert to grayscale
             gray = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+            _, thresh = cv2.threshold(gray, 185, 255, cv2.THRESH_BINARY)
             
-            # Apply cv2.threshold
-            _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
+            # 2. Optimized OCR Call (Allowlist speeds this up by ~30-50%)
+            results = reader.readtext(
+                thresh, 
+                detail=0, 
+                allowlist='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ '
+            )
             
-            # 2. Batch Read: Pass to reader.readtext(detail=0)
-            detected_strings = reader.readtext(thresh, detail=0)
-            
-            if not detected_strings:
-                continue
+            for text in results:
+                if len(text) < 3: continue
                 
-            # 3. Batch Process
-            taps_to_make = []
-            
-            # Loop through all detected text strings
-            for string in detected_strings:
-                clean_string = string.lower().strip()
-                if not clean_string or not master_dict:
-                    continue
-                    
-                match_result = process.extractOne(clean_string, master_dict.keys())
-                if match_result:
-                    match, score = match_result
-                    
-                    if score >= 85:
-                        # Prevent DOUBLE CLICKING the exact same item within the cooldown window
-                        if match in recent_taps:
-                            continue
-                            
-                        x, y = master_dict[match]
-                        # Avoid duplicate targets in a single batch
-                        if not any(m == match for m, _, _ in taps_to_make):
-                            taps_to_make.append((match, x, y))
-                            
-            # 4. The Strike
-            if taps_to_make:
-                # Limit to 2 taps per screenshot batch
-                targets = taps_to_make[:2]
+                # 3. High-Strict Match (92%) to avoid clicking words stolen by others
+                match, score = process.extractOne(text, master_dict.keys())
                 
-                if DRY_RUN:
-                    print(f"[DRY RUN] Saw {len(targets)} targets: " + " | ".join(f"'{m}' at ({x}, {y})" for m, x, y in targets))
-                else:
-                    detected_names = []
-                    for name, x, y in targets:
-                        # Add to the memory bank FIRST so we don't hit it again next cycle
-                        recent_taps[name] = time.time()
-                        
-                        # Humanize the exact tap coordinates slightly to avoid bot detection
-                        rand_x = x + random.randint(-8, 8)
-                        rand_y = y + random.randint(-8, 8)
-                        
-                        # Non-blocking sequential tap execution
-                        device.shell(f"input tap {rand_x} {rand_y}")
-                        detected_names.append(name)
-                        
-                        # Add a random stagger gap between the taps to simulate human speed variations
-                        time.sleep(random.uniform(0.05, 0.35)) #(0.55, 0.85)
+                if score >= 92:
+                    last_click = clicked_recently.get(match, 0)
+                    if time.time() - last_click < 2.5: continue
                     
-                    print(f"[STRIKE] Fired staggered taps: {detected_names}")
+                    target_x, target_y = master_dict[match]
                     
-                # Base sleep with a human-like random delay before processing the next batch
-                time.sleep(random.uniform(0.15, 0.35)) #(0.65, 0.95)
+                    # 4. Human-Speed Injection
+                    # Add a micro-delay based on reaction settings
+                    delay = random.uniform(*HUMAN_REACTION_RANGE)
+                    time.sleep(delay)
+                    
+                    # Tap
+                    off_x = random.randint(-HUMAN_CLICK_OFFSET, HUMAN_CLICK_OFFSET)
+                    off_y = random.randint(-HUMAN_CLICK_OFFSET, HUMAN_CLICK_OFFSET)
+                    
+                    overlay.update(f"STRIKE: {match}")
+                    print(f"[FAST-STRIKE] {match} (Score: {score})")
+                    
+                    device.shell(f"input tap {target_x + off_x} {target_y + off_y}")
+                    clicked_recently[match] = time.time()
+                    
+                    # Cooldown
+                    time.sleep(random.uniform(*SUCCESS_COOLDOWN))
+                    overlay.update("Watching...")
 
-        except KeyboardInterrupt:
-            print("\nBot strictly stopped by user.")
-            break
-        except Exception as e:
-            print(f"An error occurred in the loop: {e}")
-            time.sleep(1)
+            overlay.root.update()
+            # No sleep here for maximum frequency
+
+    except KeyboardInterrupt:
+        overlay.root.destroy()
+        print("Stopped.")
 
 if __name__ == "__main__":
     main()

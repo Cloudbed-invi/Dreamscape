@@ -1,202 +1,185 @@
-# INSTRUCTIONS:
-# 1. Create a folder named 'maps' in the same directory as this script.
-# 2. Place your background screenshots (.png or .jpg) inside the 'maps' folder.
-# 3. Run the script. Press 'n' to cycle through the images.
-
-import cv2
+import tkinter as tk
+from tkinter import messagebox, ttk
+from PIL import Image, ImageTk, ImageDraw
 import os
 import glob
 
-# Define the objects list
-objects_list = [
-    "Crow", "Trumpet", "Cake", "Glass Jar", "Chimney", "Sun", "Moon", 
-    "Star", "Scarf", "Suitcase", "Hot-Air-Balloon", "Hole", "Fork", "Key", 
-    "Fountain Pen", "Goggles", "Giftbox", "Fish Bone", "Rose", "Accordion", 
-    "Flour", "Music Note", "Corn", "Car", "Yarn Ball", "Lollipop", 
-    "Bread Slice", "Umbrella", "Satchel", "Diary", "Paw Mark", "Ring", 
-    "Pocket Watch", "Coffee Cup", "Envelope"
-]
+class InteractiveMapper:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Dreamscape - Professional Mapper")
+        self.root.geometry("1150x850")
+        self.root.configure(bg="#1e1e1e")
 
-coordinates = {}
-current_idx = 0
-current_img_idx = 0
-image_paths = []
-current_img = None
-
-def get_image_files(directory="maps"):
-    """Fetch all .png and .jpg files from the specified directory."""
-    if not os.path.exists(directory):
-        print(f"Error: Directory '{directory}' does not exist.")
-        print("Please create it and add your images.")
-        return []
-    
-    files = []
-    for ext in ["*.png", "*.jpg", "*.jpeg", "*.PNG", "*.JPG", "*.JPEG"]:
-        files.extend(glob.glob(os.path.join(directory, ext)))
-    
-    if not files:
-        print(f"Error: No image files found in '{directory}'.")
+        # 1. Load Data
+        self.targets = []
+        if os.path.exists("targets.txt"):
+            with open("targets.txt", "r") as f:
+                self.targets = [line.strip() for line in f if line.strip()]
         
-    return sorted(files)
+        self.master_dict = {}
+        self.canvas_objects = {} 
+        self.current_idx = 0
 
-def format_dict(d):
-    """Formats a dictionary into a clean, copy-pasteable Python string."""
-    lines = ["{"]
-    for k, v in d.items():
-        lines.append(f"    '{k}': {v},")
-    lines.append("}")
-    return "\n".join(lines)
-
-def load_current_image():
-    """Loads and standardizes the current image to exactly 900x1600."""
-    global current_img, current_img_idx, image_paths
-    
-    if not image_paths:
-        return False
+        # 2. Find Images
+        self.map_files = glob.glob("maps/*.png")
+        if not self.map_files:
+            messagebox.showerror("Error", "No map images found in 'maps/' folder.")
+            self.root.destroy()
+            return
         
-    img_path = image_paths[current_img_idx]
-    img = cv2.imread(img_path)
-    
-    if img is None:
-        print(f"Error: Could not read image at {img_path}")
-        return False
+        self.img_path = self.map_files[0]
         
-    # Standardize to 900x1600 (width, height) for memory coordinates
-    current_img = cv2.resize(img, (900, 1600))
-    return True
+        # 3. UI Layout
+        self.side_panel = tk.Frame(self.root, bg="#2a2a2a", width=280)
+        self.side_panel.pack(side="right", fill="y", padx=5, pady=5)
 
-def refresh_window():
-    global current_idx, current_img
-    
-    if current_idx >= len(objects_list) or current_img is None:
-        return
+        # Map Selector
+        tk.Label(self.side_panel, text="SELECT MAP FILE", bg="#2a2a2a", fg="#888888", font=("Arial", 8)).pack(pady=(10,0))
+        self.map_selector = ttk.Combobox(self.side_panel, values=[os.path.basename(f) for f in self.map_files], state="readonly")
+        self.map_selector.pack(fill="x", padx=10, pady=5)
+        self.map_selector.set(os.path.basename(self.img_path))
+        self.map_selector.bind("<<ComboboxSelected>>", self.change_map)
 
-    # Resize standardized image to exactly 450x800 for display
-    display_img = cv2.resize(current_img.copy(), (450, 800))
-    
-    current_object = objects_list[current_idx]
-    text = f"Mapping: {current_object} | Press 'n' to swap map"
-    
-    # Text settings for the overlay
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = 0.6
-    thickness = 1
-    
-    # Get text size to draw a background rectangle
-    text_size, _ = cv2.getTextSize(text, font, font_scale, thickness)
-    
-    # Background rectangle coordinates at the top
-    rect_x1 = 5
-    rect_y1 = 5
-    rect_x2 = rect_x1 + text_size[0] + 10
-    rect_y2 = rect_y1 + text_size[1] + 10
-    
-    # Draw black rectangle (filled)
-    cv2.rectangle(display_img, (rect_x1, rect_y1), (rect_x2, rect_y2), (0, 0, 0), cv2.FILLED)
-    
-    # Draw white text over the black rectangle
-    text_x = rect_x1 + 5
-    text_y = rect_y1 + text_size[1] + 5
-    cv2.putText(display_img, text, (text_x, text_y), font, font_scale, (255, 255, 255), thickness)
-    
-    cv2.imshow("Multi-Image Mapper (Scaled View)", display_img)
+        tk.Label(self.side_panel, text="ITEMS TO MAP", bg="#333333", fg="#00ff00", font=("Arial", 10, "bold")).pack(fill="x", pady=10)
 
-def mouse_callback(event, x, y, flags, param):
-    global current_idx
-    
-    if current_idx >= len(objects_list):
-        return
+        self.listbox = tk.Listbox(self.side_panel, bg="#1e1e1e", fg="white", font=("Arial", 10), selectbackground="#005500", relief="flat")
+        self.listbox.pack(fill="both", expand=True, padx=5, pady=5)
+        self.refresh_listbox()
+        self.listbox.bind("<<ListboxSelect>>", self.on_list_select)
+
+        # Buttons
+        tk.Button(self.side_panel, text="RESET ITEM", command=self.reset_item, bg="#663333", fg="white", relief="flat").pack(fill="x", padx=10, pady=2)
+        tk.Button(self.side_panel, text="SKIP ITEM", command=self.skip_item, bg="#444444", fg="white", relief="flat").pack(fill="x", padx=10, pady=2)
+        tk.Button(self.side_panel, text="SAVE & EXPORT", command=self.save_dict, bg="#006600", fg="white", font=("Arial", 10, "bold"), relief="flat").pack(fill="x", padx=10, pady=10)
+
+        self.canvas_frame = tk.Frame(self.root, bg="#1e1e1e")
+        self.canvas_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+        self.canvas = tk.Canvas(self.canvas_frame, bg="black", cursor="cross")
+        self.canvas.pack(fill="both", expand=True)
+        self.canvas.bind("<Button-1>", self.on_left_click)
+        self.canvas.bind("<Button-3>", self.on_right_click)
+
+        self.load_image(self.img_path)
+        self.update_selection()
+
+    def refresh_listbox(self):
+        self.listbox.delete(0, tk.END)
+        for t in self.targets:
+            prefix = "● " if t in self.master_dict else "○ "
+            self.listbox.insert(tk.END, f"{prefix}{t}")
+            if t in self.master_dict:
+                self.listbox.itemconfig(tk.END, fg="#00ff00")
+
+    def load_image(self, path):
+        self.img_path = path
+        self.orig_img = Image.open(path)
+        self.img_w, self.img_h = self.orig_img.size
+        self.render_image()
+
+    def change_map(self, event):
+        new_file = self.map_selector.get()
+        new_path = os.path.join("maps", new_file)
+        self.load_image(new_path)
+        self.master_dict = {} # Reset current mapping for new image
+        self.canvas.delete("all")
+        self.render_image()
+        self.refresh_listbox()
+        self.current_idx = 0
+        self.update_selection()
+
+    def render_image(self):
+        self.canvas.delete("all")
+        display_h = 780
+        ratio = display_h / self.img_h
+        display_w = int(self.img_w * ratio)
+        self.display_ratio = ratio
+        resized = self.orig_img.resize((display_w, display_h), Image.LANCZOS)
+        self.tk_img = ImageTk.PhotoImage(resized)
+        self.canvas.create_image(0, 0, anchor="nw", image=self.tk_img)
+
+    def on_left_click(self, event):
+        if self.current_idx >= len(self.targets): return
+        item_name = self.targets[self.current_idx]
+        self.clear_canvas_item(item_name)
+
+        real_x = int(event.x / self.display_ratio)
+        real_y = int(event.y / self.display_ratio)
+        self.master_dict[item_name] = (real_x, real_y)
         
-    current_object = objects_list[current_idx]
-    
-    if event == cv2.EVENT_LBUTTONDOWN:
-        # Left click: Save coordinate against 900x1600 baseline and advance
-        orig_x, orig_y = x * 2, y * 2
-        coordinates[current_object] = (orig_x, orig_y)
-        print(f"Mapped '{current_object}' to ({orig_x}, {orig_y})")
-        current_idx += 1
+        ov = self.canvas.create_oval(event.x-5, event.y-5, event.x+5, event.y+5, fill="#00ff00", outline="white")
+        tx = self.canvas.create_text(event.x, event.y-15, text=item_name, fill="#00ff00", font=("Arial", 8, "bold"))
+        self.canvas_objects[item_name] = [ov, tx]
+
+        self.listbox.delete(self.current_idx)
+        self.listbox.insert(self.current_idx, f"● {item_name}")
+        self.listbox.itemconfig(self.current_idx, fg="#00ff00")
+
+        self.current_idx = (self.current_idx + 1) % len(self.targets)
+        self.update_selection()
+
+    def on_right_click(self, event):
+        self.reset_item()
+
+    def clear_canvas_item(self, item_name):
+        if item_name in self.canvas_objects:
+            for obj_id in self.canvas_objects[item_name]:
+                self.canvas.delete(obj_id)
+            del self.canvas_objects[item_name]
+
+    def reset_item(self):
+        if self.current_idx < len(self.targets):
+            item_name = self.targets[self.current_idx]
+            if item_name in self.master_dict: del self.master_dict[item_name]
+            self.clear_canvas_item(item_name)
+            self.listbox.delete(self.current_idx)
+            self.listbox.insert(self.current_idx, f"○ {item_name}")
+            self.listbox.itemconfig(self.current_idx, fg="white")
+            self.update_selection()
+
+    def on_list_select(self, event):
+        selection = self.listbox.curselection()
+        if selection:
+            self.current_idx = selection[0]
+            self.update_selection()
+
+    def update_selection(self):
+        if self.current_idx < len(self.targets):
+            self.listbox.selection_clear(0, tk.END)
+            self.listbox.selection_set(self.current_idx)
+            self.listbox.see(self.current_idx)
+
+    def skip_item(self):
+        self.current_idx = (self.current_idx + 1) % len(self.targets)
+        self.update_selection()
+
+    def save_dict(self):
+        if not self.master_dict:
+            messagebox.showwarning("Warning", "No items mapped!")
+            return
         
-        if current_idx < len(objects_list):
-            refresh_window()
-        else:
-            print("\nFinished mapping all objects!")
-            
-    elif event == cv2.EVENT_RBUTTONDOWN:
-        # Right click: Skip and advance
-        print(f"Skipped '{current_object}'")
-        current_idx += 1
+        # 1. Save Dict
+        output = f"master_dict = {str(self.master_dict)}"
+        with open("master_dict.txt", "w") as f:
+            f.write(output)
         
-        if current_idx < len(objects_list):
-            refresh_window()
-        else:
-            print("\nFinished mapping all objects!")
-
-def main():
-    global current_idx, current_img_idx, image_paths
-    
-    # Load all image paths from the 'maps' directory
-    image_paths = get_image_files("maps")
-    if not image_paths:
-        return
-
-    # Load and standardize the first image
-    if not load_current_image():
-        return
-
-    # Setup window and callback
-    cv2.namedWindow("Multi-Image Mapper (Scaled View)", cv2.WINDOW_AUTOSIZE)
-    cv2.setMouseCallback("Multi-Image Mapper (Scaled View)", mouse_callback)
-
-    # Initial draw of the first object to map
-    refresh_window()
-
-    # Main interaction loop
-    while current_idx < len(objects_list):
-        # Wait for 10ms
-        key = cv2.waitKey(10) & 0xFF
+        # 2. Export Reference Image
+        preview_dir = os.path.join("archives", "mapped_previews")
+        os.makedirs(preview_dir, exist_ok=True)
         
-        # Exit if ESC is pressed
-        if key == 27:
-            print("Operation cancelled by user (ESC).")
-            break
-            
-        # Cycle images if 'n' or 'N' is pressed
-        elif key == ord('n') or key == ord('N'):
-            current_img_idx = (current_img_idx + 1) % len(image_paths)
-            print(f"Swapped background map to: {os.path.basename(image_paths[current_img_idx])}")
-            load_current_image()
-            refresh_window()
+        # Draw on original high-res image
+        draw_img = self.orig_img.copy()
+        draw = ImageDraw.Draw(draw_img)
+        for name, (x, y) in self.master_dict.items():
+            draw.ellipse([x-10, y-10, x+10, y+10], fill=(0, 255, 0), outline=(255, 255, 255))
+            draw.text((x, y-30), name, fill=(0, 255, 0))
         
-        # Check if the window was closed manually using the 'X' button
-        try:
-            if cv2.getWindowProperty("Multi-Image Mapper (Scaled View)", cv2.WND_PROP_VISIBLE) < 1:
-                print("Window closed manually.")
-                break
-        except Exception:
-            break
-
-    # Close OpenCV windows cleanly
-    cv2.destroyAllWindows()
-
-    if not coordinates:
-        print("\nNo coordinates mapped. Exiting without saving.")
-        return
-
-    # Get formatted dictionary string
-    dict_str = format_dict(coordinates)
-    
-    # Print the fully populated Python dictionary to the terminal
-    print("\n--- Final Coordinates Dictionary (900x1600 Baseline) ---")
-    print(dict_str)
-
-    # Save to a text file
-    output_file = "master_dict.txt"
-    try:
-        with open(output_file, "w") as f:
-            f.write(dict_str + "\n")
-        print(f"\nCoordinates successfully saved to {output_file}")
-    except Exception as e:
-        print(f"\nError saving to file: {e}")
+        preview_path = os.path.join(preview_dir, f"mapped_{os.path.basename(self.img_path)}")
+        draw_img.save(preview_path)
+        
+        messagebox.showinfo("Success", f"Saved {len(self.master_dict)} items!\nReference Image saved to archives/mapped_previews/")
+        self.root.destroy()
 
 if __name__ == "__main__":
-    main()
+    app = InteractiveMapper()
+    app.root.mainloop()

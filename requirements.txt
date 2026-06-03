@@ -1,0 +1,9 @@
+easyocr
+mss
+pure-python-adb
+opencv-python
+numpy
+thefuzz
+rapidfuzz
+pyautogui
+Pillow

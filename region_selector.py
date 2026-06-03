@@ -13,8 +13,15 @@ except Exception:
 
 class RegionSelector:
     def __init__(self):
+        self.selections = []
+        self.labels = ["SELECT ENTIRE GAME AREA", "SELECT OCR LIST AREA (Bottom)"]
+        self.current_step = 0
+        
+        self.run_selector()
+
+    def run_selector(self):
         self.root = tk.Tk()
-        self.root.attributes('-alpha', 0.3) # Transparent window
+        self.root.attributes('-alpha', 0.3)
         self.root.attributes('-fullscreen', True)
         self.root.attributes('-topmost', True)
         self.root.configure(background='black')
@@ -23,22 +30,22 @@ class RegionSelector:
         self.canvas = tk.Canvas(self.root, cursor="cross", bg="black", highlightthickness=0)
         self.canvas.pack(fill="both", expand=True)
         
-        # Make the canvas slightly transparent but tinted
+        # Display Instruction Text
+        self.canvas.create_text(
+            self.root.winfo_screenwidth() // 2, 50,
+            text=self.labels[self.current_step],
+            fill="white", font=("Arial", 24, "bold")
+        )
+
         self.rect = None
         self.start_x = None
         self.start_y = None
-        self.end_x = None
-        self.end_y = None
 
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
         self.canvas.bind("<B1-Motion>", self.on_move_press)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
-
-        # Allow escaping
         self.root.bind("<Escape>", lambda e: self.root.destroy())
-
-        print("Draw a box over the EXACT text area you want the bot to read.")
-        print("Press ESC to cancel without saving.")
+        
         self.root.mainloop()
 
     def on_button_press(self, event):
@@ -51,37 +58,49 @@ class RegionSelector:
         self.canvas.coords(self.rect, self.start_x, self.start_y, cur_x, cur_y)
 
     def on_button_release(self, event):
-        self.end_x = self.root.winfo_pointerx()
-        self.end_y = self.root.winfo_pointery()
-        self.root.destroy()
+        end_x = self.root.winfo_pointerx()
+        end_y = self.root.winfo_pointery()
         
-        # Calculate standard coordinates
-        left = min(self.start_x, self.end_x)
-        top = min(self.start_y, self.end_y)
-        width = abs(self.start_x - self.end_x)
-        height = abs(self.start_y - self.end_y)
+        left = min(self.start_x, end_x)
+        top = min(self.start_y, end_y)
+        width = abs(self.start_x - end_x)
+        height = abs(self.start_y - end_y)
         
-        capture_region = {
+        self.selections.append({
             "top": top,
             "left": left,
             "width": width,
             "height": height
+        })
+        
+        self.root.destroy()
+        self.current_step += 1
+        
+        if self.current_step < len(self.labels):
+            self.run_selector()
+        else:
+            self.save_and_exit()
+
+    def save_and_exit(self):
+        config = {
+            "full_game": self.selections[0],
+            "ocr_list": self.selections[1]
         }
         
-        # Output coordinates to file automatically
-        config_path = Path("region.json")
-        import json
-        with open(config_path, 'w') as f:
-            json.dump(capture_region, f, indent=4)
-        print(f"\nSaved capture region to: {config_path.absolute()}")
+        with open("region.json", 'w') as f:
+            json.dump(config, f, indent=4)
         
-        print("\nTaking test screenshot of your selected region to confirm...")
+        print("\nCalibration Complete!")
+        print(f"Full Game Area: {config['full_game']}")
+        print(f"OCR List Area: {config['ocr_list']}")
+        
+        # Take debug shots
         with mss.mss() as sct:
-            sct_img = sct.grab(capture_region)
-            output_path = Path("mss_region_debug.png")
-            mss.tools.to_png(sct_img.rgb, sct_img.size, output=str(output_path))
-            print(f"Saved precise test screenshot to: {output_path.absolute()}")
-            print("\nAutomated setup complete! The bot will now automatically read region.json.")
+            for name, region in config.items():
+                sct_img = sct.grab(region)
+                mss.tools.to_png(sct_img.rgb, sct_img.size, output=f"debug_{name}.png")
+                print(f"Saved debug image: debug_{name}.png")
 
 if __name__ == "__main__":
+    import json
     RegionSelector()

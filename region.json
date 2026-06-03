@@ -1,6 +1,14 @@
 {
-    "top": 880,
-    "left": 1,
-    "width": 626,
-    "height": 199
+    "full_game": {
+        "top": 0,
+        "left": 4,
+        "width": 583,
+        "height": 1079
+    },
+    "ocr_list": {
+        "top": 900,
+        "left": 4,
+        "width": 579,
+        "height": 179
+    }
 }
