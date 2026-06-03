@@ -1,0 +1,156 @@
+{
+    "targets": [
+        "Hourglass",
+        "Briefcase",
+        "Wallet",
+        "Bucket",
+        "Patch",
+        "Plant",
+        "Lamp",
+        "Mop",
+        "Tie",
+        "Footprints",
+        "Handgun",
+        "Banner",
+        "Helmet",
+        "Drum",
+        "Calendar",
+        "Compass",
+        "Stamp",
+        "Broken Glass",
+        "Paper Ball",
+        "Feather",
+        "Trophy",
+        "Crack",
+        "Water Cup",
+        "Shield",
+        "Sword",
+        "Rope",
+        "Diary",
+        "Cane",
+        "Coat",
+        "Chess Board"
+    ],
+    "coordinates": {
+        "Hourglass": [
+            0.3632,
+            0.5399
+        ],
+        "Briefcase": [
+            0.5192,
+            0.4986
+        ],
+        "Wallet": [
+            0.3162,
+            0.6647
+        ],
+        "Bucket": [
+            0.1047,
+            0.5793
+        ],
+        "Patch": [
+            0.562,
+            0.4169
+        ],
+        "Plant": [
+            0.5085,
+            0.3794
+        ],
+        "Lamp": [
+            0.4679,
+            0.1566
+        ],
+        "Mop": [
+            0.5897,
+            0.5581
+        ],
+        "Tie": [
+            0.6303,
+            0.4736
+        ],
+        "Footprints": [
+            0.3526,
+            0.4669
+        ],
+        "Handgun": [
+            0.7009,
+            0.5898
+        ],
+        "Banner": [
+            0.4167,
+            0.3141
+        ],
+        "Helmet": [
+            0.7094,
+            0.512
+        ],
+        "Drum": [
+            0.8547,
+            0.4371
+        ],
+        "Calendar": [
+            0.2436,
+            0.2767
+        ],
+        "Compass": [
+            0.5919,
+            0.7522
+        ],
+        "Stamp": [
+            0.8462,
+            0.7061
+        ],
+        "Broken Glass": [
+            0.9038,
+            0.2171
+        ],
+        "Paper Ball": [
+            0.2521,
+            0.5773
+        ],
+        "Feather": [
+            0.1944,
+            0.7522
+        ],
+        "Trophy": [
+            0.3996,
+            0.2142
+        ],
+        "Crack": [
+            0.7436,
+            0.1623
+        ],
+        "Water Cup": [
+            0.7585,
+            0.6455
+        ],
+        "Shield": [
+            0.0662,
+            0.3295
+        ],
+        "Sword": [
+            0.1774,
+            0.3862
+        ],
+        "Rope": [
+            0.6517,
+            0.2853
+        ],
+        "Diary": [
+            0.3782,
+            0.7483
+        ],
+        "Cane": [
+            0.7842,
+            0.3987
+        ],
+        "Coat": [
+            0.9017,
+            0.3362
+        ],
+        "Chess Board": [
+            0.1987,
+            0.511
+        ]
+    }
+}

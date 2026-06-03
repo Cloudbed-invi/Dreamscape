@@ -1,1 +1,1 @@
-{"reaction": 0.447, "cooldown": 0.219, "jitter": 3, "randomness": 0.38}
+{"reaction": 0.447, "cooldown": 0.219, "jitter": 0, "randomness": 0.38, "adb_ip": "127.0.0.1:5555"}

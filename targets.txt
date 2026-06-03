@@ -1,34 +1,23 @@
-Lightning
-Ladder
-Snowman
-Cart
-Wristwatch
-Toolbox
-Scarf
-Lift
-Wrench
-Diamond
-Gloves
-Airship
-Footprint
-Pruning Shears
-Statue
-Snowboard
-Wood Pile
-Blanket
-Shovel
-Broom
-Satchel
-Boots
-Iron Axe
-Headwear
-Kite
-Wind Chime
-Streetlight
-Manhole Cover
-Watering Can
+Map
 Feather
-Bucket
-Sign Post
-Basket
-Ruler
+Balloon
+Ball
+Rubber Duck
+Corn
+Scarf
+Wing
+Butterfly
+Bell
+Starfish
+Drifting bottle
+Sunflower
+Canned Food
+Spider web
+Backpack
+Camera
+Banner
+Hot air balloon
+Tower
+Chimney
+Rope
+Skylight

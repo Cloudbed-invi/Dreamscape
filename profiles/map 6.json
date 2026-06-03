@@ -1,0 +1,131 @@
+{
+    "targets": [
+        "Glass Bottle",
+        "Sea Turtle",
+        "Jellyfish",
+        "Spotlight",
+        "Bluefish",
+        "Seahorse",
+        "Shark",
+        "Otter",
+        "Sunken Ship",
+        "Painting",
+        "Dolphin",
+        "A",
+        "Sea Anemone",
+        "Ship Wheel",
+        "Sea Urchin",
+        "Book",
+        "Magnifier",
+        "Lobster",
+        "Chest",
+        "Starfish",
+        "Diving Mask",
+        "Seashell",
+        "Compass",
+        "Fish Bone",
+        "Quill"
+    ],
+    "coordinates": {
+        "Glass Bottle": [
+            0.6898,
+            0.2478
+        ],
+        "Sea Turtle": [
+            0.731,
+            0.2732
+        ],
+        "Jellyfish": [
+            0.3644,
+            0.2459
+        ],
+        "Spotlight": [
+            0.2191,
+            0.1737
+        ],
+        "Bluefish": [
+            0.7397,
+            0.2078
+        ],
+        "Seahorse": [
+            0.7484,
+            0.3522
+        ],
+        "Shark": [
+            0.141,
+            0.2478
+        ],
+        "Otter": [
+            0.5662,
+            0.1737
+        ],
+        "Sunken Ship": [
+            0.5618,
+            0.3756
+        ],
+        "Painting": [
+            0.2213,
+            0.3259
+        ],
+        "Dolphin": [
+            0.0954,
+            0.3961
+        ],
+        "A": [
+            0.3601,
+            0.3629
+        ],
+        "Sea Anemone": [
+            0.7592,
+            0.4673
+        ],
+        "Ship Wheel": [
+            0.2104,
+            0.4166
+        ],
+        "Sea Urchin": [
+            0.1215,
+            0.4946
+        ],
+        "Book": [
+            0.1302,
+            0.5307
+        ],
+        "Magnifier": [
+            0.2126,
+            0.6732
+        ],
+        "Lobster": [
+            0.0607,
+            0.6478
+        ],
+        "Chest": [
+            0.4143,
+            0.4849
+        ],
+        "Starfish": [
+            0.269,
+            0.4732
+        ],
+        "Diving Mask": [
+            0.3059,
+            0.5298
+        ],
+        "Seashell": [
+            0.1041,
+            0.7112
+        ],
+        "Compass": [
+            0.3471,
+            0.6829
+        ],
+        "Fish Bone": [
+            0.7484,
+            0.161
+        ],
+        "Quill": [
+            0.2625,
+            0.7678
+        ]
+    }
+}

@@ -1,0 +1,76 @@
+{
+    "targets": [
+        "Sailboat",
+        "Mushroom",
+        "Gift Box",
+        "Basket",
+        "Ladder",
+        "Harp",
+        "Lighthouse",
+        "Pine Tree",
+        "Drain",
+        "Birds Nest",
+        "Statue",
+        "Headwear",
+        "Umbrella",
+        "Shovel"
+    ],
+    "coordinates": {
+        "Sailboat": [
+            0.6923,
+            0.4986
+        ],
+        "Mushroom": [
+            0.4979,
+            0.6523
+        ],
+        "Gift Box": [
+            0.3889,
+            0.6081
+        ],
+        "Basket": [
+            0.2778,
+            0.7061
+        ],
+        "Ladder": [
+            0.5513,
+            0.5082
+        ],
+        "Harp": [
+            0.344,
+            0.4995
+        ],
+        "Lighthouse": [
+            0.8547,
+            0.4159
+        ],
+        "Pine Tree": [
+            0.8996,
+            0.4342
+        ],
+        "Drain": [
+            0.5705,
+            0.6907
+        ],
+        "Birds Nest": [
+            0.1218,
+            0.2594
+        ],
+        "Statue": [
+            0.0962,
+            0.5255
+        ],
+        "Headwear": [
+            0.062,
+            0.586
+        ],
+        "Umbrella": [
+            0.0513,
+            0.6609
+        ],
+        "Shovel": [
+            0.6902,
+            0.5898
+        ]
+    }
+}

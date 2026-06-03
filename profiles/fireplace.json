@@ -1,0 +1,131 @@
+{
+    "targets": [
+        "Candle",
+        "Wood Pile",
+        "Gloves",
+        "Flag Garland",
+        "Cart",
+        "Arrow Sign",
+        "Barrel",
+        "Bird s Nest",
+        "Wreath",
+        "Footprints",
+        "Tarp",
+        "Mailbox",
+        "Star",
+        "Pumpkin",
+        "Broom",
+        "Scissors",
+        "Jug",
+        "Moon",
+        "Backpack",
+        "Pouch",
+        "Notebook",
+        "Goggles",
+        "Crack",
+        "Fire Tongs",
+        "Kettle"
+    ],
+    "coordinates": {
+        "Candle": [
+            0.2694,
+            0.3362
+        ],
+        "Wood Pile": [
+            0.2583,
+            0.4125
+        ],
+        "Gloves": [
+            0.3556,
+            0.3362
+        ],
+        "Flag Garland": [
+            0.9,
+            0.1938
+        ],
+        "Cart": [
+            0.8889,
+            0.3412
+        ],
+        "Arrow Sign": [
+            0.7361,
+            0.3525
+        ],
+        "Barrel": [
+            0.5778,
+            0.3775
+        ],
+        "Bird s Nest": [
+            0.6056,
+            0.1925
+        ],
+        "Wreath": [
+            0.2583,
+            0.2338
+        ],
+        "Footprints": [
+            0.4889,
+            0.3887
+        ],
+        "Tarp": [
+            0.4583,
+            0.2087
+        ],
+        "Mailbox": [
+            0.8222,
+            0.3075
+        ],
+        "Star": [
+            0.475,
+            0.3088
+        ],
+        "Pumpkin": [
+            0.7944,
+            0.41
+        ],
+        "Broom": [
+            0.375,
+            0.4338
+        ],
+        "Scissors": [
+            0.3472,
+            0.4587
+        ],
+        "Jug": [
+            0.1278,
+            0.5437
+        ],
+        "Moon": [
+            0.3417,
+            0.1375
+        ],
+        "Backpack": [
+            0.2694,
+            0.5075
+        ],
+        "Pouch": [
+            0.4861,
+            0.4275
+        ],
+        "Notebook": [
+            0.0917,
+            0.59
+        ],
+        "Goggles": [
+            0.25,
+            0.1837
+        ],
+        "Crack": [
+            0.6444,
+            0.2938
+        ],
+        "Fire Tongs": [
+            0.1528,
+            0.3937
+        ],
+        "Kettle": [
+            0.3889,
+            0.49
+        ]
+    }
+}

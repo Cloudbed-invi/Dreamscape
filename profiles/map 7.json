@@ -1,0 +1,166 @@
+{
+    "targets": [
+        "Number Plate",
+        "Mailbox",
+        "Chimney",
+        "Plane",
+        "Clock",
+        "Flag Garland",
+        "Kite",
+        "Dog",
+        "Sun",
+        "Road Cone",
+        "Dirt Pit",
+        "Basket",
+        "Shell",
+        "Nest",
+        "Chandelier",
+        "Shovel",
+        "Pipe",
+        "Accordion",
+        "Gift Box",
+        "Balloons",
+        "Cave",
+        "Wreath",
+        "Watering Can",
+        "Blanket",
+        "Boots",
+        "Crack",
+        "N",
+        "Leaf Pile",
+        "Ladder",
+        "Camera",
+        "Wood Pile",
+        "Tarp"
+    ],
+    "coordinates": {
+        "Number Plate": [
+            0.6991,
+            0.4837
+        ],
+        "Mailbox": [
+            0.1606,
+            0.4644
+        ],
+        "Chimney": [
+            0.5566,
+            0.1955
+        ],
+        "Plane": [
+            0.1357,
+            0.2892
+        ],
+        "Clock": [
+            0.4208,
+            0.2332
+        ],
+        "Flag Garland": [
+            0.4344,
+            0.2536
+        ],
+        "Kite": [
+            0.6312,
+            0.168
+        ],
+        "Dog": [
+            0.4796,
+            0.4684
+        ],
+        "Sun": [
+            0.1629,
+            0.165
+        ],
+        "Road Cone": [
+            0.3439,
+            0.4929
+        ],
+        "Dirt Pit": [
+            0.3484,
+            0.5224
+        ],
+        "Basket": [
+            0.4774,
+            0.5031
+        ],
+        "Shell": [
+            0.4208,
+            0.3248
+        ],
+        "Nest": [
+            0.6403,
+            0.2841
+        ],
+        "Chandelier": [
+            0.4548,
+            0.3574
+        ],
+        "Shovel": [
+            0.3733,
+            0.5387
+        ],
+        "Pipe": [
+            0.2398,
+            0.2943
+        ],
+        "Accordion": [
+            0.2489,
+            0.5336
+        ],
+        "Gift Box": [
+            0.3484,
+            0.5774
+        ],
+        "Balloons": [
+            0.7964,
+            0.3992
+        ],
+        "Cave": [
+            0.9095,
+            0.3208
+        ],
+        "Wreath": [
+            0.6516,
+            0.3666
+        ],
+        "Watering Can": [
+            0.5566,
+            0.612
+        ],
+        "Blanket": [
+            0.3824,
+            0.3961
+        ],
+        "Boots": [
+            0.2466,
+            0.5998
+        ],
+        "Crack": [
+            0.4887,
+            0.4308
+        ],
+        "N": [
+            0.819,
+            0.2974
+        ],
+        "Leaf Pile": [
+            0.4118,
+            0.6568
+        ],
+        "Ladder": [
+            0.8009,
+            0.443
+        ],
+        "Camera": [
+            0.8869,
+            0.442
+        ],
+        "Wood Pile": [
+            0.595,
+            0.4766
+        ],
+        "Tarp": [
+            0.733,
+            0.2607
+        ]
+    }
+}

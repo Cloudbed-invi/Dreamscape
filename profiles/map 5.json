@@ -1,0 +1,131 @@
+{
+    "targets": [
+        "Cannon Barrel",
+        "Diving Helmet",
+        "Banana Peel",
+        "Hourglass",
+        "Tentacles",
+        "Lifebuoy",
+        "Lantern",
+        "Barrel",
+        "Bomb",
+        "Fish Bone",
+        "Fake Limb",
+        "Pouch",
+        "Patch",
+        "Toy Figure",
+        "Broom",
+        "Chest",
+        "Crab",
+        "Seagull",
+        "Bucket",
+        "Sword",
+        "Stool",
+        "Arrow Sign",
+        "Starfish",
+        "Plant",
+        "Chain"
+    ],
+    "coordinates": {
+        "Cannon Barrel": [
+            0.6182,
+            0.278
+        ],
+        "Diving Helmet": [
+            0.6573,
+            0.4722
+        ],
+        "Banana Peel": [
+            0.1106,
+            0.5434
+        ],
+        "Hourglass": [
+            0.295,
+            0.4205
+        ],
+        "Tentacles": [
+            0.1302,
+            0.2595
+        ],
+        "Lifebuoy": [
+            0.3839,
+            0.2966
+        ],
+        "Lantern": [
+            0.8829,
+            0.4146
+        ],
+        "Barrel": [
+            0.5076,
+            0.2868
+        ],
+        "Bomb": [
+            0.7809,
+            0.3493
+        ],
+        "Fish Bone": [
+            0.8265,
+            0.1678
+        ],
+        "Fake Limb": [
+            0.1345,
+            0.5922
+        ],
+        "Pouch": [
+            0.2755,
+            0.5932
+        ],
+        "Patch": [
+            0.5315,
+            0.161
+        ],
+        "Toy Figure": [
+            0.7267,
+            0.5454
+        ],
+        "Broom": [
+            0.2863,
+            0.3307
+        ],
+        "Chest": [
+            0.7809,
+            0.2849
+        ],
+        "Crab": [
+            0.5792,
+            0.5707
+        ],
+        "Seagull": [
+            0.2863,
+            0.161
+        ],
+        "Bucket": [
+            0.2386,
+            0.3795
+        ],
+        "Sword": [
+            0.5857,
+            0.4254
+        ],
+        "Stool": [
+            0.2386,
+            0.7317
+        ],
+        "Arrow Sign": [
+            0.5813,
+            0.7356
+        ],
+        "Starfish": [
+            0.1106,
+            0.3366
+        ],
+        "Plant": [
+            0.9024,
+            0.3298
+        ],
+        "Chain": [
+            0.5271,
+            0.2166
+        ]
+    }
+}

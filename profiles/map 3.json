@@ -1,0 +1,146 @@
+{
+    "targets": [
+        "Gloves",
+        "Map",
+        "Triangle",
+        "Backpack",
+        "Book",
+        "Patch",
+        "Fountain Pen",
+        "Belt",
+        "Tea Set",
+        "Lock",
+        "Magnifier",
+        "Flower",
+        "Bullets",
+        "Photo Frame",
+        "Compass",
+        "Key",
+        "Boots",
+        "Bow",
+        "Gold Coins",
+        "Binoculars",
+        "Glass Bottle",
+        "Earmuffs",
+        "Spider",
+        "Dagger",
+        "Screwdriver",
+        "Pouch",
+        "Acorn",
+        "X"
+    ],
+    "coordinates": {
+        "Gloves": [
+            0.2972,
+            0.5437
+        ],
+        "Map": [
+            0.5556,
+            0.5425
+        ],
+        "Triangle": [
+            0.625,
+            0.5962
+        ],
+        "Backpack": [
+            0.4417,
+            0.4938
+        ],
+        "Book": [
+            0.8972,
+            0.4575
+        ],
+        "Patch": [
+            0.6389,
+            0.505
+        ],
+        "Fountain Pen": [
+            0.8194,
+            0.4963
+        ],
+        "Belt": [
+            0.8472,
+            0.5675
+        ],
+        "Tea Set": [
+            0.6472,
+            0.6775
+        ],
+        "Lock": [
+            0.2194,
+            0.6538
+        ],
+        "Magnifier": [
+            0.3167,
+            0.5863
+        ],
+        "Flower": [
+            0.5194,
+            0.745
+        ],
+        "Bullets": [
+            0.8389,
+            0.6288
+        ],
+        "Photo Frame": [
+            0.3083,
+            0.2875
+        ],
+        "Compass": [
+            0.2111,
+            0.7037
+        ],
+        "Key": [
+            0.7444,
+            0.5288
+        ],
+        "Boots": [
+            0.1,
+            0.6112
+        ],
+        "Bow": [
+            0.45,
+            0.38
+        ],
+        "Gold Coins": [
+            0.175,
+            0.4612
+        ],
+        "Binoculars": [
+            0.1972,
+            0.385
+        ],
+        "Glass Bottle": [
+            0.235,
+            0.5159
+        ],
+        "Earmuffs": [
+            0.4444,
+            0.293
+        ],
+        "Spider": [
+            0.2415,
+            0.2536
+        ],
+        "Dagger": [
+            0.3803,
+            0.2334
+        ],
+        "Screwdriver": [
+            0.4231,
+            0.6311
+        ],
+        "Pouch": [
+            0.9124,
+            0.2507
+        ],
+        "Acorn": [
+            0.1709,
+            0.4131
+        ],
+        "X": [
+            0.5299,
+            0.1633
+        ]
+    }
+}

@@ -1,8 +1,9 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, simpledialog
 from PIL import Image, ImageTk, ImageDraw
 import os
 import glob
+import json
 
 class InteractiveMapper:
     def __init__(self):
@@ -11,13 +12,29 @@ class InteractiveMapper:
         self.root.geometry("1150x850")
         self.root.configure(bg="#1e1e1e")
 
-        # 1. Load Data
-        self.targets = []
-        if os.path.exists("targets.txt"):
-            with open("targets.txt", "r") as f:
-                self.targets = [line.strip() for line in f if line.strip()]
+        self.root.withdraw()
+        profile_name = simpledialog.askstring("Map Profile", "Enter Map Profile Name (e.g. garden):")
+        if not profile_name:
+            self.root.destroy()
+            return
+            
+        os.makedirs("profiles", exist_ok=True)
+        self.profile_path = os.path.join("profiles", f"{profile_name.lower()}.json")
         
+        self.targets = []
         self.master_dict = {}
+        
+        if os.path.exists(self.profile_path):
+            with open(self.profile_path, "r") as f:
+                data = json.load(f)
+                self.targets = data.get("targets", [])
+                self.master_dict = data.get("coordinates", {})
+        else:
+            t_str = simpledialog.askstring("New Profile", "Enter targets separated by comma:")
+            if t_str:
+                self.targets = [t.strip() for t in t_str.split(",") if t.strip()]
+        
+        self.root.deiconify()
         self.canvas_objects = {} 
         self.current_idx = 0
 
@@ -103,9 +120,9 @@ class InteractiveMapper:
         item_name = self.targets[self.current_idx]
         self.clear_canvas_item(item_name)
 
-        real_x = int(event.x / self.display_ratio)
-        real_y = int(event.y / self.display_ratio)
-        self.master_dict[item_name] = (real_x, real_y)
+        pct_x = (event.x / self.display_ratio) / self.img_w
+        pct_y = (event.y / self.display_ratio) / self.img_h
+        self.master_dict[item_name] = (round(pct_x, 4), round(pct_y, 4))
         
         ov = self.canvas.create_oval(event.x-5, event.y-5, event.x+5, event.y+5, fill="#00ff00", outline="white")
         tx = self.canvas.create_text(event.x, event.y-15, text=item_name, fill="#00ff00", font=("Arial", 8, "bold"))
@@ -159,9 +176,12 @@ class InteractiveMapper:
             return
         
         # 1. Save Dict
-        output = f"master_dict = {str(self.master_dict)}"
-        with open("master_dict.txt", "w") as f:
-            f.write(output)
+        output = {
+            "targets": self.targets,
+            "coordinates": self.master_dict
+        }
+        with open(self.profile_path, "w") as f:
+            json.dump(output, f, indent=4)
         
         # 2. Export Reference Image
         preview_dir = os.path.join("archives", "mapped_previews")
@@ -170,7 +190,9 @@ class InteractiveMapper:
         # Draw on original high-res image
         draw_img = self.orig_img.copy()
         draw = ImageDraw.Draw(draw_img)
-        for name, (x, y) in self.master_dict.items():
+        for name, (pct_x, pct_y) in self.master_dict.items():
+            x = int(pct_x * self.img_w)
+            y = int(pct_y * self.img_h)
             draw.ellipse([x-10, y-10, x+10, y+10], fill=(0, 255, 0), outline=(255, 255, 255))
             draw.text((x, y-30), name, fill=(0, 255, 0))
         

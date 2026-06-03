@@ -1,8 +1,11 @@
 import tkinter as tk
+from tkinter import simpledialog
 import mss
 import mss.tools
 from pathlib import Path
 import ctypes
+import json
+import os
 
 # Force Windows to treat this app as High DPI-aware so Tkinter coordinates 
 # perfectly match the physical pixels for mss.
@@ -14,13 +17,43 @@ except Exception:
 class RegionSelector:
     def __init__(self):
         self.selections = []
-        self.labels = ["SELECT ENTIRE GAME AREA", "SELECT OCR LIST AREA (Bottom)"]
-        self.current_step = 0
         
+        # Load existing config if it exists
+        self.config = {}
+        if os.path.exists("region.json"):
+            try:
+                with open("region.json", 'r') as f:
+                    self.config = json.load(f)
+            except: pass
+            
+        temp_root = tk.Tk()
+        temp_root.withdraw()
+        
+        choice = simpledialog.askstring(
+            "Calibration",
+            "Which region do you want to map?\n\n1 - Full Game Area\n2 - Multiplayer OCR Area\n3 - Single-Player OCR Area"
+        )
+        temp_root.destroy()
+        
+        if choice == "1":
+            self.target_key = "full_game"
+            self.label_text = "SELECT ENTIRE GAME AREA"
+        elif choice == "2":
+            self.target_key = "ocr_list"
+            self.label_text = "SELECT MULTIPLAYER OCR AREA"
+        elif choice == "3":
+            self.target_key = "ocr_list_single"
+            self.label_text = "SELECT SINGLE-PLAYER OCR AREA"
+        else:
+            print("Invalid choice. Exiting.")
+            return
+            
         self.run_selector()
 
     def run_selector(self):
         self.root = tk.Tk()
+        self.sw = self.root.winfo_screenwidth()
+        self.sh = self.root.winfo_screenheight()
         self.root.attributes('-alpha', 0.3)
         self.root.attributes('-fullscreen', True)
         self.root.attributes('-topmost', True)
@@ -32,8 +65,8 @@ class RegionSelector:
         
         # Display Instruction Text
         self.canvas.create_text(
-            self.root.winfo_screenwidth() // 2, 50,
-            text=self.labels[self.current_step],
+            self.sw // 2, 50,
+            text=self.label_text,
             fill="white", font=("Arial", 24, "bold")
         )
 
@@ -67,40 +100,35 @@ class RegionSelector:
         height = abs(self.start_y - end_y)
         
         self.selections.append({
-            "top": top,
-            "left": left,
-            "width": width,
-            "height": height
+            "top": round(top / self.sh, 4),
+            "left": round(left / self.sw, 4),
+            "width": round(width / self.sw, 4),
+            "height": round(height / self.sh, 4)
         })
         
         self.root.destroy()
-        self.current_step += 1
-        
-        if self.current_step < len(self.labels):
-            self.run_selector()
-        else:
-            self.save_and_exit()
+        self.save_and_exit()
 
     def save_and_exit(self):
-        config = {
-            "full_game": self.selections[0],
-            "ocr_list": self.selections[1]
-        }
+        self.config[self.target_key] = self.selections[0]
         
         with open("region.json", 'w') as f:
-            json.dump(config, f, indent=4)
+            json.dump(self.config, f, indent=4)
         
-        print("\nCalibration Complete!")
-        print(f"Full Game Area: {config['full_game']}")
-        print(f"OCR List Area: {config['ocr_list']}")
+        print(f"\nCalibration Complete for: {self.target_key}")
+        print(f"Coordinates: {self.config[self.target_key]}")
         
-        # Take debug shots
         with mss.mss() as sct:
-            for name, region in config.items():
-                sct_img = sct.grab(region)
-                mss.tools.to_png(sct_img.rgb, sct_img.size, output=f"debug_{name}.png")
-                print(f"Saved debug image: debug_{name}.png")
+            pct_region = self.config[self.target_key]
+            real_region = {
+                "top": int(pct_region["top"] * self.sh),
+                "left": int(pct_region["left"] * self.sw),
+                "width": int(pct_region["width"] * self.sw),
+                "height": int(pct_region["height"] * self.sh)
+            }
+            sct_img = sct.grab(real_region)
+            mss.tools.to_png(sct_img.rgb, sct_img.size, output=f"debug_{self.target_key}.png")
+            print(f"Saved debug image: debug_{self.target_key}.png")
 
 if __name__ == "__main__":
-    import json
     RegionSelector()
