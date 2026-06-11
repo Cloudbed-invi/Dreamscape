@@ -2,18 +2,17 @@
     "targets": [
         "Sailboat",
         "Mushroom",
-        "Gift Box",
-        "Basket",
+        "Statue",
+        "Umbrella",
+        "Shovel",
         "Ladder",
-        "Harp",
-        "Lighthouse",
-        "Pine Tree",
+        "Basket",
+        "Gift Box",
         "Drain",
         "Birds Nest",
-        "Statue",
-        "Headwear",
-        "Umbrella",
-        "Shovel"
+        "Lighthouse",
+        "Pine Tree",
+        "Telescope"
     ],
     "coordinates": {
         "Sailboat": [
@@ -24,45 +23,9 @@
             0.4979,
             0.6523
         ],
-        "Gift Box": [
-            0.3889,
-            0.6081
-        ],
-        "Basket": [
-            0.2778,
-            0.7061
-        ],
-        "Ladder": [
-            0.5513,
-            0.5082
-        ],
-        "Harp": [
-            0.344,
-            0.4995
-        ],
-        "Lighthouse": [
-            0.8547,
-            0.4159
-        ],
-        "Pine Tree": [
-            0.8996,
-            0.4342
-        ],
-        "Drain": [
-            0.5705,
-            0.6907
-        ],
-        "Birds Nest": [
-            0.1218,
-            0.2594
-        ],
         "Statue": [
             0.0962,
             0.5255
-        ],
-        "Headwear": [
-            0.062,
-            0.586
         ],
         "Umbrella": [
             0.0513,
@@ -71,6 +34,38 @@
         "Shovel": [
             0.6902,
             0.5898
+        ],
+        "Ladder": [
+            0.5611,
+            0.5031
+        ],
+        "Basket": [
+            0.2896,
+            0.7037
+        ],
+        "Gift Box": [
+            0.4072,
+            0.6018
+        ],
+        "Drain": [
+            0.638,
+            0.6955
+        ],
+        "Birds Nest": [
+            0.1606,
+            0.2607
+        ],
+        "Lighthouse": [
+            0.8011,
+            0.3856
+        ],
+        "Pine Tree": [
+            0.8427,
+            0.3978
+        ],
+        "Telescope": [
+            0.5805,
+            0.5341
         ]
     }
 }

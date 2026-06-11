@@ -1,0 +1,186 @@
+{
+    "targets": [
+        "Sea Cucumber",
+        "Canned Food",
+        "Exhaust Fan",
+        "Oxygen Tank",
+        "Searchlight",
+        "Lighthouse",
+        "Sea Urchin",
+        "Sea Turtle",
+        "Swordfish",
+        "Starfish",
+        "Lifebuoy",
+        "Snowman",
+        "Chimney",
+        "Trident",
+        "Anchor",
+        "Tent",
+        "Kite",
+        "Bell",
+        "Crane",
+        "Basket",
+        "Z",
+        "Chain",
+        "Shell",
+        "Shrimp",
+        "Mermaid",
+        "Bench",
+        "Corn",
+        "Vines",
+        "Mailbox",
+        "Number Plate",
+        "Paw Mark",
+        "7",
+        "Pipe",
+        "Oar",
+        "Ice Skates",
+        "Dog"
+    ],
+    "coordinates": {
+        "Sea Cucumber": [
+            0.8054,
+            0.7434
+        ],
+        "Canned Food": [
+            0.8439,
+            0.7006
+        ],
+        "Exhaust Fan": [
+            0.6742,
+            0.4318
+        ],
+        "Oxygen Tank": [
+            0.1176,
+            0.6008
+        ],
+        "Searchlight": [
+            0.1674,
+            0.4481
+        ],
+        "Lighthouse": [
+            0.7511,
+            0.3605
+        ],
+        "Sea Urchin": [
+            0.5249,
+            0.7729
+        ],
+        "Sea Turtle": [
+            0.4095,
+            0.6059
+        ],
+        "Swordfish": [
+            0.7964,
+            0.4603
+        ],
+        "Starfish": [
+            0.8665,
+            0.6375
+        ],
+        "Lifebuoy": [
+            0.7941,
+            0.5407
+        ],
+        "Snowman": [
+            0.0543,
+            0.5448
+        ],
+        "Chimney": [
+            0.6222,
+            0.332
+        ],
+        "Trident": [
+            0.1312,
+            0.7485
+        ],
+        "Anchor": [
+            0.5068,
+            0.5204
+        ],
+        "Tent": [
+            0.8688,
+            0.4644
+        ],
+        "Kite": [
+            0.3665,
+            0.224
+        ],
+        "Bell": [
+            0.4027,
+            0.3493
+        ],
+        "Crane": [
+            0.9525,
+            0.3422
+        ],
+        "Basket": [
+            0.0882,
+            0.669
+        ],
+        "Z": [
+            0.5498,
+            0.5682
+        ],
+        "Chain": [
+            0.595,
+            0.6008
+        ],
+        "Shell": [
+            0.4457,
+            0.7291
+        ],
+        "Shrimp": [
+            0.6471,
+            0.7312
+        ],
+        "Mermaid": [
+            0.1222,
+            0.3798
+        ],
+        "Bench": [
+            0.2647,
+            0.4817
+        ],
+        "Corn": [
+            0.3235,
+            0.7719
+        ],
+        "Vines": [
+            0.1471,
+            0.2882
+        ],
+        "Mailbox": [
+            0.3982,
+            0.4644
+        ],
+        "Number Plate": [
+            0.3439,
+            0.4236
+        ],
+        "Paw Mark": [
+            0.7534,
+            0.2037
+        ],
+        "7": [
+            0.2398,
+            0.3218
+        ],
+        "Pipe": [
+            0.2285,
+            0.387
+        ],
+        "Oar": [
+            0.3597,
+            0.5794
+        ],
+        "Ice Skates": [
+            0.2738,
+            0.6395
+        ],
+        "Dog": [
+            0.6787,
+            0.5397
+        ]
+    }
+}

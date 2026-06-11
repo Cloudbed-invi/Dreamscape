@@ -1,3 +1,5 @@
+# Dreamscape Bot
+
 ## 🚀 Quick Start Guide
 
 ### 1. Installation
@@ -6,19 +8,41 @@ Ensure you have Python 3.10+ installed.
 pip install -r requirements.txt
 ```
 
-### 2. Start the Controller
+### 2. Connect Your Device / Emulator
+The bot uses ADB (Android Debug Bridge) to interact with your game. You need to configure the connection based on the device you are using. Update the `"adb_ip"` in **`bot_settings.json`** accordingly (or let the bot use the default).
+
+#### 📱 Native Android Device (USB / Wi-Fi)
+1. **Enable Developer Options**: Go to Settings > About Phone, and tap "Build Number" 7 times.
+2. **Enable USB Debugging**: Go to Settings > Developer Options, and turn on "USB Debugging".
+3. **Connect to PC**: Plug in your device via USB.
+4. **Configure IP**:
+   - If using USB, you can often leave `"adb_ip": "127.0.0.1:5555"` or use the device's specific serial number if multiple devices are connected.
+   - For Wi-Fi debugging (Android 11+), find your device's IP address (e.g., `192.168.1.100:5555`) in Wi-Fi settings and set `"adb_ip": "192.168.1.100:5555"`.
+
+#### 🎮 BlueStacks
+1. Open BlueStacks.
+2. Go to **Settings** > **Advanced** (or **Preferences** depending on version).
+3. Enable **Android Debug Bridge (ADB)**.
+4. Look at the port provided (often `5555`, `5554`, or something like `5565`).
+5. Update `bot_settings.json` with the correct port, e.g., `"adb_ip": "127.0.0.1:5555"`.
+
+#### 🎮 MuMu Player
+1. Open MuMu Player (Version 12 recommended).
+2. Go to **Settings** > **Others** (or System).
+3. Enable **ADB Debugging** / **USB Debugging**.
+4. MuMu typically uses port `7555` or `16384`. 
+5. Update `bot_settings.json` with `"adb_ip": "127.0.0.1:7555"` (or the IP shown in MuMu's network settings, e.g., `192.168.2.11:5555`).
+
+---
+
+### 3. Start the Controller
 The easiest way to use the bot is the **Floating Controller**:
 ```powershell
 python .\controller.py
 ```
 This will open a small control bar that stays on top of your game. Use it to trigger setup and start the bot with one click.
 
-### 3. Setup MuMu Player
-1. Open MuMu Player (Version 12 recommended).
-2. Enable **USB Debugging** in settings.
-3. Update the `ADB_ADDRESS` in `bot.py` and `capture_map.py` to match your MuMu IP (e.g., `192.168.2.11`).
-
-### 3. Calibration (Do this once)
+### 4. Calibration (Do this once)
 Run the selector to show the bot where your game window is:
 ```powershell
 python .\region_selector.py
@@ -63,10 +87,10 @@ When you start `bot.py` on a new day:
 
 ---
 ## ⚙️ Configuration
-You can adjust speed and "human-ness" in `bot.py`:
-- `HUMAN_REACTION_RANGE`: Delay before clicking after seeing an item.
-- `HUMAN_CLICK_OFFSET`: Randomness in click position (keep low for small objects).
-- `SUCCESS_COOLDOWN`: Wait time between items.
+You can adjust speed and "human-ness" in the controller UI or `bot_settings.json`:
+- `reaction`: Delay before clicking after seeing an item.
+- `randomness`: Randomness in click position (keep low for small objects).
+- `cooldown`: Wait time between items.
 
 ---
 *Disclaimer: Use at your own risk. This tool is for educational purposes.*

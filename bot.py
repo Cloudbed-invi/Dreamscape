@@ -61,12 +61,14 @@ SUCCESS_COOLDOWN = (max(0, base_cool * (1 - var)), base_cool * (1 + var))
 HUMAN_CLICK_OFFSET = settings["jitter"]
 
 class StrikeOverlay:
-    def __init__(self, on_round_over, on_pause_toggle, region):
+    def __init__(self, on_round_over, on_pause_toggle, on_recalibrate, region, is_multiplayer=False, speed_settings=None):
         self.root = tk.Tk()
         self.root.overrideredirect(True)
         self.root.attributes("-topmost", True)
         self.root.attributes("-alpha", 0.9)
-        self.root.geometry(f"750x35+{region['left'] + region['width'] + 20}+{region['top']}")
+        
+        height = 70 if is_multiplayer else 35
+        self.root.geometry(f"750x{height}+{region['left'] + region['width'] + 20}+{region['top']}")
         
         self.top_frame = tk.Frame(self.root, bg="#121212")
         self.top_frame.pack(fill="both", expand=True)
@@ -87,6 +89,9 @@ class StrikeOverlay:
         self.force_btn = tk.Button(self.top_frame, text="Force Start", command=on_force_start, bg="#9C27B0", fg="white", relief="flat", font=("Arial", 8))
         self.force_btn.pack(side="left", padx=2)
         
+        self.recal_btn = tk.Button(self.top_frame, text="Recalibrate", command=on_recalibrate, bg="#3F51B5", fg="white", relief="flat", font=("Arial", 8))
+        self.recal_btn.pack(side="left", padx=2)
+        
         def on_main_menu():
             import sys, subprocess, os
             subprocess.Popen([sys.executable] + sys.argv)
@@ -100,6 +105,28 @@ class StrikeOverlay:
         
         self.end_btn = tk.Button(self.top_frame, text="End Round", command=on_round_over, bg="#F44336", fg="white", relief="flat", font=("Arial", 8))
         self.end_btn.pack(side="right", padx=2)
+        
+        if is_multiplayer and speed_settings:
+            self.bottom_frame = tk.Frame(self.root, bg="#121212")
+            self.bottom_frame.pack(fill="both", expand=True)
+            
+            tk.Label(self.bottom_frame, text="Co-Op Speed:", bg="#121212", fg="#00ff00", font=("Arial", 8, "bold")).pack(side="left", padx=2)
+            
+            self.speed_mode_var = tk.StringVar(value=speed_settings.get("mode", "athlete"))
+            self.speed_dropdown = tk.OptionMenu(self.bottom_frame, self.speed_mode_var, "human", "athlete", "custom")
+            self.speed_dropdown.config(bg="#FF9800", fg="white", relief="flat", font=("Arial", 8))
+            self.speed_dropdown.pack(side="left", padx=2)
+            
+            self.custom_speed_var = tk.StringVar(value=speed_settings.get("custom", "0.01"))
+            self.custom_speed_entry = tk.Entry(self.bottom_frame, textvariable=self.custom_speed_var, width=6, bg="#333", fg="white", font=("Arial", 8))
+            self.custom_speed_entry.pack(side="left", padx=2)
+            
+            def on_speed_change(*args):
+                speed_settings["mode"] = self.speed_mode_var.get()
+                speed_settings["custom"] = self.custom_speed_var.get()
+                
+            self.speed_mode_var.trace_add("write", on_speed_change)
+            self.custom_speed_var.trace_add("write", on_speed_change)
         
         # Transparent ESP Window
         self.esp = tk.Toplevel(self.root)
@@ -138,13 +165,17 @@ class BotLauncher:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Dreamscape Bot Launcher")
-        self.root.geometry("450x850")
+        self.root.minsize(450, 750)
         self.root.configure(bg="#2b2b2b")
         self.result = None
         
         self.refresh_profiles()
         self.selected_profile = tk.StringVar(value=self.profiles[0] if self.profiles else "")
         self.mode = tk.StringVar(value="single")
+        
+        # Speed mode vars
+        self.speed_mode = tk.StringVar(value="athlete")
+        self.custom_speed = tk.StringVar(value="0.01")
         
         self.setup_ui()
         self.root.mainloop()
@@ -179,14 +210,29 @@ class BotLauncher:
         frame_mode = tk.Frame(self.root, bg="#2b2b2b")
         frame_mode.pack(fill="x", pady=5, padx=10)
         
-        tk.Radiobutton(frame_mode, text="Single Player (Companion Mode)", variable=self.mode, value="single", bg="#2b2b2b", fg="white", selectcolor="#444").pack(anchor="w")
-        tk.Radiobutton(frame_mode, text="Multiplayer (Speed Mode)", variable=self.mode, value="multi", bg="#2b2b2b", fg="white", selectcolor="#444").pack(anchor="w")
+        tk.Radiobutton(frame_mode, text="Single Player (Companion Mode)", variable=self.mode, value="single", bg="#2b2b2b", fg="white", selectcolor="#444", command=self.update_ui_state).pack(anchor="w")
+        tk.Radiobutton(frame_mode, text="Multiplayer (Speed Mode)", variable=self.mode, value="multi", bg="#2b2b2b", fg="white", selectcolor="#444", command=self.update_ui_state).pack(anchor="w")
+        
+        # Speed Settings Frame (only visible in multiplayer)
+        self.frame_speed = tk.Frame(self.root, bg="#333", padx=10, pady=5)
+        
+        tk.Label(self.frame_speed, text="Speed Setting:", bg="#333", fg="#00ff00", font=("Arial", 10, "bold")).pack(anchor="w")
+        
+        tk.Radiobutton(self.frame_speed, text="Slow Human (1.0 - 2.5s)", variable=self.speed_mode, value="slow_human", bg="#333", fg="white", selectcolor="#555", command=self.update_ui_state).pack(anchor="w")
+        tk.Radiobutton(self.frame_speed, text="Human (0.4 - 1.2s)", variable=self.speed_mode, value="human", bg="#333", fg="white", selectcolor="#555", command=self.update_ui_state).pack(anchor="w")
+        tk.Radiobutton(self.frame_speed, text="Athlete (0.05 - 0.25s)", variable=self.speed_mode, value="athlete", bg="#333", fg="white", selectcolor="#555", command=self.update_ui_state).pack(anchor="w")
+        
+        frame_custom = tk.Frame(self.frame_speed, bg="#333")
+        frame_custom.pack(anchor="w", fill="x")
+        tk.Radiobutton(frame_custom, text="Custom (seconds):", variable=self.speed_mode, value="custom", bg="#333", fg="white", selectcolor="#555", command=self.update_ui_state).pack(side="left")
+        
+        self.custom_speed_entry = tk.Entry(frame_custom, textvariable=self.custom_speed, width=6, bg="#555", fg="white")
         
         # Action Buttons (Rename, Export)
-        frame_actions = tk.Frame(self.root, bg="#2b2b2b")
-        frame_actions.pack(fill="x", pady=5)
-        tk.Button(frame_actions, text="Rename Map", command=self.rename_profile, bg="#FF9800", fg="white", font=("Arial", 10, "bold")).pack(side="left", expand=True, fill="x", padx=5)
-        tk.Button(frame_actions, text="Export Map", command=self.export_profile, bg="#9C27B0", fg="white", font=("Arial", 10, "bold")).pack(side="left", expand=True, fill="x", padx=5)
+        self.frame_actions = tk.Frame(self.root, bg="#2b2b2b")
+        self.frame_actions.pack(fill="x", pady=5)
+        tk.Button(self.frame_actions, text="Rename Map", command=self.rename_profile, bg="#FF9800", fg="white", font=("Arial", 10, "bold")).pack(side="left", expand=True, fill="x", padx=5)
+        tk.Button(self.frame_actions, text="Export Map", command=self.export_profile, bg="#9C27B0", fg="white", font=("Arial", 10, "bold")).pack(side="left", expand=True, fill="x", padx=5)
         
         frame_actions2 = tk.Frame(self.root, bg="#2b2b2b")
         frame_actions2.pack(fill="x", pady=5)
@@ -206,7 +252,27 @@ class BotLauncher:
         
         # Initial call
         self.update_preview()
+        self.update_ui_state()
         
+    def update_ui_state(self, *args):
+        # Show/Hide Speed settings based on game mode
+        if self.mode.get() == "multi":
+            self.frame_speed.pack(fill="x", padx=10, pady=5)
+            # Re-pack the rest of the elements so they stay below it
+            # To do this cleanly, we can just let Tkinter naturally order them by repacking everything below it.
+            # But the easiest way is to use the 'before' or 'after' parameter.
+            # We want frame_speed to be after frame_mode.
+            # However, since frame_actions is right below it, we can pack it before frame_actions!
+            self.frame_speed.pack(before=self.frame_actions, fill="x", padx=10, pady=5)
+        else:
+            self.frame_speed.pack_forget()
+            
+        # Enable/Disable custom speed entry
+        if self.speed_mode.get() == "custom":
+            self.custom_speed_entry.pack(side="left", padx=5)
+        else:
+            self.custom_speed_entry.pack_forget()
+
     def update_preview(self, *args):
         prof = self.selected_profile.get()
         if not prof: return
@@ -392,7 +458,11 @@ class BotLauncher:
     def start_bot(self):
         if not self.selected_profile.get():
             return
-        self.result = (self.selected_profile.get(), self.mode.get())
+        speed_settings = {
+            "mode": self.speed_mode.get(),
+            "custom": self.custom_speed.get()
+        }
+        self.result = (self.selected_profile.get(), self.mode.get(), speed_settings)
         self.root.destroy()
 
 def get_scrcpy_rect():
@@ -449,7 +519,7 @@ def main():
         print("Launcher closed. Exiting.")
         return
         
-    profile_name, game_mode = launcher.result
+    profile_name, game_mode, speed_settings = launcher.result
     is_multiplayer = (game_mode == 'multi')
     
     profile_path = os.path.join("profiles", f"{profile_name}.json")
@@ -466,21 +536,9 @@ def main():
     capture_region_full = scrcpy_rect
     print(f"Auto-Tracked Game Window: {capture_region_full}")
     
-    if not is_multiplayer:
-        capture_region_ocr = {
-            "top": int(scrcpy_rect["top"] + scrcpy_rect["height"] * 0.82),
-            "left": scrcpy_rect["left"],
-            "width": scrcpy_rect["width"],
-            "height": int(scrcpy_rect["height"] * 0.18)
-        }
-    else:
-        # Multiplayer OCR is slightly higher up usually
-        capture_region_ocr = {
-            "top": int(scrcpy_rect["top"] + scrcpy_rect["height"] * 0.70),
-            "left": scrcpy_rect["left"] + int(scrcpy_rect["width"] * 0.10),
-            "width": int(scrcpy_rect["width"] * 0.80),
-            "height": int(scrcpy_rect["height"] * 0.20)
-        }
+    # We will initialize the OCR region to full screen. 
+    # It dynamically calibrates and shrinks itself the moment it detects game words!
+    capture_region_ocr = dict(capture_region_full)
 
     client = AdbClient(host="127.0.0.1", port=5037)
     devices = client.devices()
@@ -488,7 +546,24 @@ def main():
         print("Error: No ADB devices found! Ensure your phone is connected and USB debugging is enabled.")
         return
         
-    device = devices[0]
+    target_serial = None
+    try:
+        with open("bot_settings.json", "r") as f:
+            settings = json.load(f)
+            target_serial = settings.get("adb_ip")
+    except:
+        pass
+        
+    device = None
+    if target_serial:
+        for d in devices:
+            if d.serial == target_serial:
+                device = d
+                break
+                
+    if not device:
+        device = devices[0]
+        
     print(f"Connected to ADB Device: {device.serial}")
     
     wm_size = device.shell("wm size")
@@ -506,6 +581,7 @@ def main():
     current_state = GameState.WAITING_FOR_STAGE
     round_unknowns = set()
     saw_intro = False
+    consecutive_empty = 0
     last_continue_scan = time.time()
     total_time = 60
     round_start_time = time.time()
@@ -537,47 +613,22 @@ def main():
                 return False
         return True
             
-    overlay = StrikeOverlay(on_round_over, on_pause_toggle, capture_region_full)
-    click_queue = queue.Queue()
+    def on_recalibrate():
+        nonlocal capture_region_full, capture_region_ocr
+        new_rect = get_scrcpy_rect()
+        if new_rect:
+            capture_region_full = new_rect
+            capture_region_ocr = dict(capture_region_full)
+            height = 70 if is_multiplayer else 35
+            overlay.root.geometry(f"750x{height}+{new_rect['left'] + new_rect['width'] + 20}+{new_rect['top']}")
+            overlay.esp.geometry(f"{new_rect['width']}x{new_rect['height']}+{new_rect['left']}+{new_rect['top']}")
+            overlay.update_text("Window Recalibrated!")
+            overlay.refresh()
+            print(f"Recalibrated Scrcpy Tracking: {capture_region_full}")
+
+    overlay = StrikeOverlay(on_round_over, on_pause_toggle, on_recalibrate, capture_region_full, is_multiplayer, speed_settings)
     clicked_recently = {}
-    
-    def click_worker():
-        while True:
-            item_to_click = click_queue.get()
-            if item_to_click is None: break
-                
-            match, score = item_to_click
-            pct_x, pct_y = master_dict[match]
-            
-            target_x = int(pct_x * adb_w)
-            target_y = int(pct_y * adb_h)
-            
-            delay = random.uniform(*HUMAN_REACTION_RANGE)
-            time.sleep(delay)
-            
-            if HUMAN_CLICK_OFFSET > 0:
-                off_x = random.randint(-HUMAN_CLICK_OFFSET, HUMAN_CLICK_OFFSET)
-                off_y = random.randint(-HUMAN_CLICK_OFFSET, HUMAN_CLICK_OFFSET)
-            else:
-                off_x, off_y = 0, 0
-            
-            overlay.update_text(f"STRIKE: {match}")
-            print(f"[FAST-STRIKE] {match} (Score: {score}) -> Click: {target_x + off_x}, {target_y + off_y}")
-            device.shell(f"input tap {target_x + off_x} {target_y + off_y}")
-            clicked_recently[match] = time.time()
-            
-            time.sleep(random.uniform(*SUCCESS_COOLDOWN))
-            
-            if not is_multiplayer:
-                while not click_queue.empty():
-                    try: click_queue.get_nowait()
-                    except: pass
-                time.sleep(1.2)
-                
-            overlay.update_text("Scanning...")
-            click_queue.task_done()
-            
-    threading.Thread(target=click_worker, daemon=True).start()
+    last_global_click = 0.0
 
     print(f"--- {'MULTIPLAYER' if is_multiplayer else 'SINGLE PLAYER COMPANION'} MODE ACTIVE ---")
     print(f"Loaded Map: {profile_name}")
@@ -585,12 +636,7 @@ def main():
     try:
         while True:
             if current_state == GameState.WAITING_FOR_STAGE:
-                if is_multiplayer:
-                    # In multiplayer, maybe skip intro detection and just start playing instantly
-                    current_state = GameState.PLAYING
-                    continue
-                    
-                # Detect Stage Intro (Single Player only) by scanning the full screen
+                # Detect Stage Intro by scanning the full screen
                 sct_img = sct.grab(capture_region_full)
                 img = np.array(sct_img)
                 gray = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
@@ -611,10 +657,17 @@ def main():
                     saw_intro = False
                     round_start_time = time.time()
                     baseline_taken = False
+                    capture_region_ocr = dict(capture_region_full)
                     total_time = 60
                     round_unknowns.clear()
+                    next_global_delay = 0.0
                     print("Force Started.")
-                elif "tap" in text_str and "anywhere" in text_str:
+                elif is_multiplayer and "start timer" in text_str:
+                    total_time = 60
+                    overlay.update_text("Waiting for Co-op Start...")
+                    saw_intro = True
+                    consecutive_empty = 0
+                elif not is_multiplayer and "tap" in text_str and "anywhere" in text_str:
                     # Look for any 2-digit number optionally followed by s, 5, or 3 (OCR mistakes)
                     matches = re.finditer(r'\b(\d{2})\s*[sS53]?\b', text_str)
                     total_time = 60
@@ -628,15 +681,43 @@ def main():
                             
                     overlay.update_text(f"Waiting for you to click Start... ({total_time}s)")
                     saw_intro = True
+                    consecutive_empty = 0
                 elif saw_intro:
+                    if is_multiplayer:
+                        # 0-Millisecond Start Detection: Check if the screen shade lifted!
+                        h, w = gray.shape
+                        bottom_crop = gray[int(h*0.7):, :]
+                        _, wait_thresh = cv2.threshold(bottom_crop, 200, 255, cv2.THRESH_BINARY)
+                        
+                        # Wait for the text pixels at the bottom to become bright white
+                        white_pixels = cv2.countNonZero(wait_thresh)
+                        if white_pixels > 200:
+                            pass # Shade lifted! We drop down to transition.
+                        else:
+                            overlay.update_text("Waiting for Shade to Lift...")
+                            overlay.refresh()
+                            continue
+                    else:
+                        consecutive_empty += 1
+                        if consecutive_empty < 3:
+                            overlay.update_text("Preparing Start...")
+                            overlay.refresh()
+                            time.sleep(0.5)
+                            continue
+                        
                     overlay.update_text(f"ROUND STARTED! ({total_time}s)")
                     current_state = GameState.PLAYING
                     saw_intro = False
+                    consecutive_empty = 0
                     round_start_time = time.time()
                     baseline_taken = False
+                    capture_region_ocr = dict(capture_region_full)
+                    next_global_delay = 0.0
                     
                     round_unknowns.clear()
                     print(f"Started playing with a {total_time}s timer.")
+                elif is_multiplayer:
+                    overlay.update_text("Waiting for Co-op Lobby...")
                 else:
                     overlay.update_text("Waiting for Stage Intro...")
                     
@@ -649,10 +730,15 @@ def main():
                     last_continue_scan = time.time()
                     full_sct = sct.grab(capture_region_full)
                     full_gray = cv2.cvtColor(np.array(full_sct), cv2.COLOR_BGRA2GRAY)
-                    full_res = reader.readtext(full_gray, detail=0)
+                    
+                    # Resize by 50% to make the OCR 4x faster!
+                    # This prevents the bot from "pausing" or lagging while checking for the victory screen.
+                    small_gray = cv2.resize(full_gray, (0,0), fx=0.5, fy=0.5)
+                    full_res = reader.readtext(small_gray, detail=0)
+                    
                     full_text = " ".join([t.lower() for t in full_res])
-                    if "continue" in full_text or "claim" in full_text:
-                        print("Detected Victory Screen (Continue/Claim). Auto Round Over!")
+                    if "continue" in full_text or "claim" in full_text or "timer up" in full_text or "all items found" in full_text or "team room" in full_text:
+                        print("Detected Victory Screen (Continue/Claim/Timer Up/All Items Found/Team Room). Auto Round Over!")
                         on_round_over()
                         continue
                         
@@ -661,7 +747,8 @@ def main():
                 img = np.array(sct_img)
                 
                 gray = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
-                _, thresh = cv2.threshold(gray, 185, 255, cv2.THRESH_BINARY)
+                # Binarize text to solid white (200 threshold prevents eroding anti-aliased text edges)
+                _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
                 
                 # Display Live Debug for OCR Region
                 cv2.namedWindow("Bot Vision Debug")
@@ -669,21 +756,53 @@ def main():
                 cv2.imshow("Bot Vision Debug", thresh)
                 cv2.waitKey(1)
                 
-                results = reader.readtext(thresh, detail=0, allowlist='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ')
-                
-                valid_words = [t.strip().title() for t in results if is_valid_item(t.strip().title())]
-                
-                if len(valid_words) > 0 and not baseline_taken:
-                    import shutil
-                    import datetime
-                    os.makedirs("profiles/archive", exist_ok=True)
-                    sct_img_full = sct.grab(capture_region_full)
-                    cv2.imwrite("baseline.png", np.array(sct_img_full))
-                    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                    try: shutil.copy("baseline.png", f"profiles/archive/{profile_name}_{timestamp}.png")
-                    except: pass
-                    baseline_taken = True
-                    print("Instant baseline screenshot saved perfectly on UI load!")
+                if not baseline_taken:
+                    # Calibration mode: use detail=1 to get bounding boxes
+                    results_raw = reader.readtext(thresh, detail=1, allowlist='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ')
+                    
+                    valid_bboxes = []
+                    valid_words = []
+                    for bbox, text, conf in results_raw:
+                        clean = text.strip().title()
+                        if is_valid_item(clean):
+                            # Ensure it's in the bottom half of the current search area
+                            y_center = (bbox[0][1] + bbox[2][1]) / 2
+                            if y_center > capture_region_ocr["height"] * 0.5:
+                                valid_bboxes.append(bbox)
+                                valid_words.append(clean)
+                                
+                    if len(valid_bboxes) > 0:
+                        y_mins = [min(p[1] for p in bbox) for bbox in valid_bboxes]
+                        y_maxs = [max(p[1] for p in bbox) for bbox in valid_bboxes]
+                        min_y = int(min(y_mins))
+                        max_y = int(max(y_maxs))
+                        pad = 15
+                        
+                        capture_region_ocr = {
+                            "top": capture_region_ocr["top"] + min_y - pad,
+                            "left": capture_region_full["left"],
+                            "width": capture_region_full["width"],
+                            "height": (max_y - min_y) + (pad * 2)
+                        }
+                        print(f"🎯 Dynamic OCR Calibrated: {capture_region_ocr}")
+                        overlay.update_text(f"OCR Bound Set! ({len(valid_words)} items)")
+                        
+                        # Set baseline taken immediately after finding words
+                        import shutil
+                        import datetime
+                        os.makedirs("profiles/archive", exist_ok=True)
+                        sct_img_full = sct.grab(capture_region_full)
+                        cv2.imwrite("baseline.png", np.array(sct_img_full))
+                        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                        try: shutil.copy("baseline.png", f"profiles/archive/{profile_name}_{timestamp}.png")
+                        except: pass
+                        baseline_taken = True
+                        print("Instant baseline screenshot saved perfectly on UI load!")
+                        
+                    results = valid_words
+                else:
+                    results_raw = reader.readtext(thresh, detail=0, allowlist='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ')
+                    results = [t.strip().title() for t in results_raw if is_valid_item(t.strip().title())]
                 
                 current_mode = overlay.mode_var.get()
                 esp_markers = []
@@ -716,11 +835,58 @@ def main():
                         last_click = clicked_recently.get(match, 0)
                         
                         if is_multiplayer:
+                            # 0-Queue Policy, direct click with custom speed delay
                             if time.time() - last_click < 2.5: continue
-                            if click_queue.qsize() > 0: continue
                             
-                            clicked_recently[match] = time.time() + 10
-                            click_queue.put((match, score))
+                            target_x = int(pct_x * adb_w)
+                            target_y = int(pct_y * adb_h)
+                            
+                            # Extremely tight spread
+                            off_x = random.randint(-2, 2)
+                            off_y = random.randint(-2, 2)
+                            
+                            overlay.update_text(f"CO-OP STRIKE: {match}")
+                            
+                            if time.time() - last_global_click < next_global_delay:
+                                continue # Keep scanning while waiting for global cooldown!
+                                
+                            target_x = int(pct_x * adb_w)
+                            target_y = int(pct_y * adb_h)
+                            
+                            # Extremely tight spread
+                            off_x = random.randint(-2, 2)
+                            off_y = random.randint(-2, 2)
+                            
+                            overlay.update_text(f"CO-OP STRIKE: {match}")
+                            
+                            overlay.refresh()
+                            if current_state != GameState.PLAYING:
+                                break
+                                
+                            device.shell(f"input tap {target_x + off_x} {target_y + off_y}")
+                            clicked_recently[match] = time.time()
+                            last_global_click = time.time()
+                            
+                            actual_delay = next_global_delay
+                            
+                            # Generate NEXT delay using Normal (Gaussian) Distribution!
+                            # This creates a bell curve where most clicks cluster near the base delay,
+                            # but occasionally have wider deviations (like a real human losing focus).
+                            if speed_settings["mode"] == "slow_human":
+                                next_global_delay = max(0.5, random.gauss(1.6, 0.4))
+                            elif speed_settings["mode"] == "human":
+                                next_global_delay = max(0.4, random.gauss(0.8, 0.25))
+                            elif speed_settings["mode"] == "athlete":
+                                next_global_delay = max(0.05, random.gauss(0.15, 0.05))
+                            else:
+                                try:
+                                    base_delay = float(speed_settings["custom"])
+                                    next_global_delay = max(0.05, random.gauss(base_delay, base_delay * 0.25))
+                                except:
+                                    next_global_delay = 0.05
+                                    
+                            print(f"[CO-OP STRIKE] {match} -> Click: {target_x + off_x}, {target_y + off_y} (Cooldown: {actual_delay:.3f}s)")
+                            break
                         else:
                             # V3 Single Player Direct-Click Logic
                             # 8s cooldown prevents double-clicking greyed-out items while waiting for the page to flip
